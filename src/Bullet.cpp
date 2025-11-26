@@ -1,12 +1,28 @@
 #include "Bullet.h"
 #include <cmath>
 
-Bullet::Bullet(float x, float y, float targetX, float targetY, float speed)
+Bullet::Bullet(float x, float y, float targetX, float targetY, float speed, Enemy::Type targetType)
     : Entity(x, y, 8.f, 8.f)
     , m_target(targetX, targetY)
     , m_speed(speed)
+    , m_targetType(targetType)
 {
-    m_shape.setFillColor(sf::Color::White);
+    // Устанавливаем цвет пули в зависимости от типа цели
+    switch (m_targetType)
+    {
+    case Enemy::Type::Square:
+        m_shape.setFillColor(sf::Color::Green);
+        break;
+    case Enemy::Type::Triangle:
+        m_shape.setFillColor(sf::Color(255, 200, 0)); // Оранжевый
+        break;
+    case Enemy::Type::Circle:
+        m_shape.setFillColor(sf::Color(0, 200, 255)); // Голубой
+        break;
+    case Enemy::Type::Pentagon:
+        m_shape.setFillColor(sf::Color(255, 0, 255)); // Пурпурный
+        break;
+    }
     
     // Вычисляем направление
     sf::Vector2f direction = m_target - sf::Vector2f(x, y);
@@ -63,5 +79,10 @@ bool Bullet::hasReachedTarget() const
         (m_target.y - currentPos.y) * (m_target.y - currentPos.y)
     );
     return distance < TARGET_THRESHOLD;
+}
+
+Enemy::Type Bullet::getTargetType() const
+{
+    return m_targetType;
 }
 

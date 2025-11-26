@@ -108,45 +108,45 @@ void WaveManager::addCustomWave(const std::vector<WaveConfig>& config)
 
 void WaveManager::initializeWaves()
 {
-    // Волна 1: Базовые враги
+    // Волна 1: Квадраты
     m_waves.push_back({
-        {5, 1.0f, Enemy::Type::Basic},
-        {5, 1.0f, Enemy::Type::Basic},
-        {3, 0.8f, Enemy::Type::Basic}
+        {5, 1.0f, Enemy::Type::Square},
+        {5, 1.0f, Enemy::Type::Square},
+        {3, 0.8f, Enemy::Type::Square}
     });
     
-    // Волна 2: Смешанные
+    // Волна 2: Квадраты и Треугольники
     m_waves.push_back({
-        {3, 1.0f, Enemy::Type::Basic},
-        {3, 0.7f, Enemy::Type::Fast},
-        {2, 1.0f, Enemy::Type::Basic},
-        {2, 0.7f, Enemy::Type::Fast}
+        {3, 1.0f, Enemy::Type::Square},
+        {3, 0.7f, Enemy::Type::Triangle},
+        {2, 1.0f, Enemy::Type::Square},
+        {2, 0.7f, Enemy::Type::Triangle}
     });
     
-    // Волна 3: Танки
+    // Волна 3: Все типы
     m_waves.push_back({
-        {2, 1.5f, Enemy::Type::Tank},
-        {3, 1.0f, Enemy::Type::Basic},
-        {2, 1.5f, Enemy::Type::Tank},
-        {4, 0.6f, Enemy::Type::Fast}
+        {2, 1.5f, Enemy::Type::Pentagon},
+        {3, 1.0f, Enemy::Type::Square},
+        {2, 1.5f, Enemy::Type::Circle},
+        {4, 0.6f, Enemy::Type::Triangle}
     });
     
-    // Волна 4: Интенсивная
+    // Волна 4: Интенсивная смешанная
     m_waves.push_back({
-        {5, 0.5f, Enemy::Type::Fast},
-        {3, 1.0f, Enemy::Type::Basic},
-        {3, 0.5f, Enemy::Type::Fast},
-        {2, 1.5f, Enemy::Type::Tank},
-        {4, 0.6f, Enemy::Type::Fast}
+        {5, 0.5f, Enemy::Type::Triangle},
+        {3, 1.0f, Enemy::Type::Square},
+        {3, 0.5f, Enemy::Type::Circle},
+        {2, 1.5f, Enemy::Type::Pentagon},
+        {4, 0.6f, Enemy::Type::Triangle}
     });
     
-    // Волна 5: Финальная
+    // Волна 5: Финальная - все типы
     m_waves.push_back({
-        {3, 1.0f, Enemy::Type::Tank},
-        {5, 0.4f, Enemy::Type::Fast},
-        {3, 1.0f, Enemy::Type::Tank},
-        {5, 0.4f, Enemy::Type::Fast},
-        {2, 1.5f, Enemy::Type::Tank}
+        {3, 1.0f, Enemy::Type::Pentagon},
+        {5, 0.4f, Enemy::Type::Triangle},
+        {3, 1.0f, Enemy::Type::Circle},
+        {5, 0.4f, Enemy::Type::Square},
+        {2, 1.5f, Enemy::Type::Pentagon}
     });
 }
 

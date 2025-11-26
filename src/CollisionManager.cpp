@@ -17,6 +17,10 @@ int CollisionManager::checkBulletEnemyCollisions(
         {
             if (!enemy->isAlive())
                 continue;
+            
+            // Проверяем, что пуля может поразить этого врага (типы должны совпадать)
+            if (bullet->getTargetType() != enemy->getType())
+                continue;
 
             if (checkCollision(bullet->getBounds(), enemy->getBounds()))
             {

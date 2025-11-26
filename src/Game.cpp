@@ -11,6 +11,7 @@ Game::Game()
     , m_gameOver(false)
     , m_victory(false)
     , m_showPlacementPreview(false)
+    , m_selectedDefenderType(Enemy::Type::Square)
 {
     // Инициализация базы в центре экрана
     m_base = std::make_unique<Base>(WINDOW_WIDTH / 2.f - 30.f, WINDOW_HEIGHT / 2.f - 30.f);
@@ -31,17 +32,17 @@ Game::Game()
     #endif
     
     // Настройка UI текста (создаем после загрузки шрифта)
-    m_scoreText = std::make_unique<sf::Text>(m_font, "", 24);
+    m_scoreText = std::make_unique<sf::Text>(m_font, "", 18);
     m_scoreText->setFillColor(sf::Color::White);
     m_scoreText->setPosition(sf::Vector2f(10.f, 10.f));
     
-    m_healthText = std::make_unique<sf::Text>(m_font, "", 24);
+    m_healthText = std::make_unique<sf::Text>(m_font, "", 18);
     m_healthText->setFillColor(sf::Color::White);
-    m_healthText->setPosition(sf::Vector2f(10.f, 40.f));
+    m_healthText->setPosition(sf::Vector2f(10.f, 32.f));
     
-    m_waveText = std::make_unique<sf::Text>(m_font, "", 24);
+    m_waveText = std::make_unique<sf::Text>(m_font, "", 18);
     m_waveText->setFillColor(sf::Color::White);
-    m_waveText->setPosition(sf::Vector2f(10.f, 70.f));
+    m_waveText->setPosition(sf::Vector2f(10.f, 54.f));
     
     m_gameOverText = std::make_unique<sf::Text>(m_font, "GAME OVER\nPress R to Restart", 48);
     m_gameOverText->setFillColor(sf::Color::Red);
@@ -51,14 +52,10 @@ Game::Game()
     m_victoryText->setFillColor(sf::Color::Green);
     m_victoryText->setPosition(sf::Vector2f(WINDOW_WIDTH / 2.f - 120.f, WINDOW_HEIGHT / 2.f - 50.f));
     
-    m_resourcesText = std::make_unique<sf::Text>(m_font, "", 24);
+    m_resourcesText = std::make_unique<sf::Text>(m_font, "", 18);
     m_resourcesText->setFillColor(sf::Color::Yellow);
-    m_resourcesText->setPosition(sf::Vector2f(10.f, 100.f));
-    
-    m_instructionsText = std::make_unique<sf::Text>(m_font, "Click to place defenders (cost: 50)\nDefend the base! Enemies spawn from sides.\nSurvive all waves to win! Press R to restart.", 16);
-    m_instructionsText->setFillColor(sf::Color::Cyan);
-    m_instructionsText->setPosition(sf::Vector2f(10.f, static_cast<float>(WINDOW_HEIGHT - 70)));
-    
+    m_resourcesText->setPosition(sf::Vector2f(10.f, 76.f));
+
     // Устанавливаем цель для врагов
     for (auto& enemy : *m_waveManager.getEnemies())
     {
@@ -140,20 +137,40 @@ void Game::handleEvents()
         if (event->is<sf::Event::KeyPressed>())
         {
             const auto& keyEvent = event->getIf<sf::Event::KeyPressed>();
-            if (keyEvent && keyEvent->code == sf::Keyboard::Key::R)
+            if (keyEvent)
             {
-                // Перезапуск игры
-                m_score = 0;
-                m_resources = STARTING_RESOURCES;
-                m_gameOver = false;
-                m_victory = false;
-                m_base->reset();
-                m_waveManager.reset();
-                m_defenders.clear();
-                
-                for (auto& enemy : *m_waveManager.getEnemies())
+                if (keyEvent->code == sf::Keyboard::Key::R)
                 {
-                    enemy->setTarget(m_base.get());
+                    // Перезапуск игры
+                    m_score = 0;
+                    m_resources = STARTING_RESOURCES;
+                    m_gameOver = false;
+                    m_victory = false;
+                    m_selectedDefenderType = Enemy::Type::Square;
+                    m_base->reset();
+                    m_waveManager.reset();
+                    m_defenders.clear();
+                    
+                    for (auto& enemy : *m_waveManager.getEnemies())
+                    {
+                        enemy->setTarget(m_base.get());
+                    }
+                }
+                else if (keyEvent->code == sf::Keyboard::Key::Num1)
+                {
+                    m_selectedDefenderType = Enemy::Type::Square;
+                }
+                else if (keyEvent->code == sf::Keyboard::Key::Num2)
+                {
+                    m_selectedDefenderType = Enemy::Type::Triangle;
+                }
+                else if (keyEvent->code == sf::Keyboard::Key::Num3)
+                {
+                    m_selectedDefenderType = Enemy::Type::Circle;
+                }
+                else if (keyEvent->code == sf::Keyboard::Key::Num4)
+                {
+                    m_selectedDefenderType = Enemy::Type::Pentagon;
                 }
             }
         }
@@ -273,7 +290,23 @@ void Game::updateUI()
     
     // Обновляем текст ресурсов
     std::ostringstream resourcesStream;
-    resourcesStream << "Resources: " << m_resources << " (Defender: " << DEFENDER_COST << ")";
+    std::string defenderTypeName;
+    switch (m_selectedDefenderType)
+    {
+    case Enemy::Type::Square:
+        defenderTypeName = "Square";
+        break;
+    case Enemy::Type::Triangle:
+        defenderTypeName = "Triangle";
+        break;
+    case Enemy::Type::Circle:
+        defenderTypeName = "Circle";
+        break;
+    case Enemy::Type::Pentagon:
+        defenderTypeName = "Pentagon";
+        break;
+    }
+    resourcesStream << "Resources: " << m_resources << " (Defender: " << DEFENDER_COST << ", Type: " << defenderTypeName << ")";
     m_resourcesText->setString(resourcesStream.str());
 }
 
@@ -344,8 +377,8 @@ void Game::placeDefender(const sf::Vector2f& position)
     if (!canPlaceDefender(position))
         return;
     
-    // Создаем защитника
-    auto defender = std::make_unique<Defender>(position.x - 10.f, position.y - 10.f);
+    // Создаем защитника выбранного типа
+    auto defender = std::make_unique<Defender>(position.x - 10.f, position.y - 10.f, m_selectedDefenderType);
     defender->setEnemies(m_waveManager.getEnemies());
     m_defenders.push_back(std::move(defender));
     
@@ -355,13 +388,31 @@ void Game::placeDefender(const sf::Vector2f& position)
 
 void Game::drawPlacementPreview()
 {
-    sf::CircleShape preview(10.f);
+    sf::RectangleShape preview(sf::Vector2f(20.f, 20.f));
     preview.setPosition(m_mousePosition - sf::Vector2f(10.f, 10.f));
+    
+    // Цвет предпросмотра зависит от типа башни
+    sf::Color previewColor;
+    switch (m_selectedDefenderType)
+    {
+    case Enemy::Type::Square:
+        previewColor = sf::Color(0, 255, 0, 150); // Зеленый
+        break;
+    case Enemy::Type::Triangle:
+        previewColor = sf::Color(255, 200, 0, 150); // Оранжевый
+        break;
+    case Enemy::Type::Circle:
+        previewColor = sf::Color(0, 200, 255, 150); // Голубой
+        break;
+    case Enemy::Type::Pentagon:
+        previewColor = sf::Color(255, 0, 255, 150); // Пурпурный
+        break;
+    }
     
     if (canPlaceDefender(m_mousePosition))
     {
-        preview.setFillColor(sf::Color(0, 255, 0, 100)); // Зеленый, полупрозрачный
-        preview.setOutlineColor(sf::Color::Green);
+        preview.setFillColor(previewColor);
+        preview.setOutlineColor(sf::Color::White);
     }
     else
     {

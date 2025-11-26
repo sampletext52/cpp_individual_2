@@ -6,6 +6,7 @@
 #include <string>
 #include "Base.h"
 #include "Defender.h"
+#include "Enemy.h"
 #include "WaveManager.h"
 #include "CollisionManager.h"
 #include "InputHandler.h"
@@ -65,6 +66,7 @@ private:
     bool m_victory;
     sf::Vector2f m_mousePosition;
     bool m_showPlacementPreview;
+    Enemy::Type m_selectedDefenderType;
     
     static constexpr int DEFENDER_COST = 50;
     static constexpr int STARTING_RESOURCES = 100;

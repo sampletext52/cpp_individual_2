@@ -4,14 +4,30 @@
 #include <algorithm>
 #include <limits>
 
-Defender::Defender(float x, float y)
+Defender::Defender(float x, float y, Enemy::Type targetType)
     : Entity(x, y, 20.f, 20.f)
+    , m_targetType(targetType)
     , m_enemies(nullptr)
     , m_fireCooldown(0.f)
     , m_fireRate(1.5f) // Выстрелов в секунду
     , m_range(200.f)
 {
-    m_shape.setFillColor(sf::Color::Green);
+    // Устанавливаем цвет башни в зависимости от типа цели
+    switch (m_targetType)
+    {
+    case Enemy::Type::Square:
+        m_shape.setFillColor(sf::Color::Green);
+        break;
+    case Enemy::Type::Triangle:
+        m_shape.setFillColor(sf::Color(255, 200, 0)); // Оранжевый
+        break;
+    case Enemy::Type::Circle:
+        m_shape.setFillColor(sf::Color(0, 200, 255)); // Голубой
+        break;
+    case Enemy::Type::Pentagon:
+        m_shape.setFillColor(sf::Color(255, 0, 255)); // Пурпурный
+        break;
+    }
     m_shape.setOutlineColor(sf::Color::White);
     m_shape.setOutlineThickness(1.f);
 }
@@ -42,7 +58,9 @@ void Defender::update(float deltaTime)
                 
                 m_bullets.push_back(std::make_unique<Bullet>(
                     defenderPos.x, defenderPos.y,
-                    enemyPos.x, enemyPos.y
+                    enemyPos.x, enemyPos.y,
+                    400.f,
+                    m_targetType
                 ));
                 
                 m_fireCooldown = 1.f / m_fireRate;
@@ -115,6 +133,10 @@ Enemy* Defender::findNearestEnemy() const
     {
         if (!enemy->isAlive())
             continue;
+        
+        // Проверяем, что враг того же типа, что и цель башни
+        if (enemy->getType() != m_targetType)
+            continue;
 
         float dist = distanceTo(enemy->getPosition());
         if (dist < minDistance)
@@ -135,5 +157,10 @@ float Defender::distanceTo(const sf::Vector2f& pos) const
     
     sf::Vector2f diff = pos - defenderPos;
     return std::sqrt(diff.x * diff.x + diff.y * diff.y);
+}
+
+Enemy::Type Defender::getTargetType() const
+{
+    return m_targetType;
 }
 
