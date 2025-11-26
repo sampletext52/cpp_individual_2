@@ -4,12 +4,6 @@
 #include "Enemy.h"
 #include <SFML/Graphics.hpp>
 
-/**
- * @class Bullet
- * @brief Представляет пулю, выпущенную защитником
- * 
- * Пули движутся к цели и наносят урон при попадании только врагам своего типа.
- */
 class Bullet : public Entity
 {
 public:

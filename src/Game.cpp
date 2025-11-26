@@ -13,25 +13,17 @@ Game::Game()
     , m_showPlacementPreview(false)
     , m_selectedDefenderType(Enemy::Type::Square)
 {
-    // Инициализация базы в центре экрана
     m_base = std::make_unique<Base>(WINDOW_WIDTH / 2.f - 30.f, WINDOW_HEIGHT / 2.f - 30.f);
     
-    // Инициализация защитников
     initializeDefenders();
     
-    // Инициализация шрифта (используем системный шрифт)
-    // Пытаемся загрузить шрифт, если не получается - используем дефолтный
     #ifdef _WIN32
     if (!m_font.openFromFile("C:/Windows/Fonts/arial.ttf"))
     {
-        // Если не удалось загрузить, используем дефолтный шрифт
-        // В реальном проекте можно использовать встроенные ресурсы
     }
     #else
-    // Для других платформ можно указать другие пути
     #endif
     
-    // Настройка UI текста (создаем после загрузки шрифта)
     m_scoreText = std::make_unique<sf::Text>(m_font, "", 18);
     m_scoreText->setFillColor(sf::Color::White);
     m_scoreText->setPosition(sf::Vector2f(10.f, 10.f));
@@ -56,7 +48,6 @@ Game::Game()
     m_resourcesText->setFillColor(sf::Color::Yellow);
     m_resourcesText->setPosition(sf::Vector2f(10.f, 76.f));
 
-    // Устанавливаем цель для врагов
     for (auto& enemy : *m_waveManager.getEnemies())
     {
         enemy->setTarget(m_base.get());
@@ -87,7 +78,6 @@ void Game::update(float deltaTime)
     checkCollisions();
     updateUI();
     
-    // Проверка условий победы/поражения
     if (m_base->isDestroyed())
     {
         m_gameOver = true;
@@ -141,7 +131,6 @@ void Game::handleEvents()
             {
                 if (keyEvent->code == sf::Keyboard::Key::R)
                 {
-                    // Перезапуск игры
                     m_score = 0;
                     m_resources = STARTING_RESOURCES;
                     m_gameOver = false;
@@ -181,10 +170,8 @@ void Game::render()
 {
     m_window.clear(BACKGROUND_COLOR);
     
-    // Рисуем игровые объекты
     m_base->draw(m_window);
     
-    // Рисуем предпросмотр размещения
     if (m_showPlacementPreview && !m_gameOver && !m_victory)
     {
         drawPlacementPreview();
@@ -195,13 +182,11 @@ void Game::render()
         defender->draw(m_window);
     }
     
-    // Рисуем врагов
     for (const auto& enemy : *m_waveManager.getEnemies())
     {
         enemy->draw(m_window);
     }
     
-    // Рисуем UI
     drawUI();
     
     if (m_gameOver)
@@ -218,8 +203,6 @@ void Game::render()
 
 void Game::initializeDefenders()
 {
-    // Начальные защитники больше не создаются автоматически
-    // Игрок должен размещать их сам
 }
 
 void Game::updateDefenders(float deltaTime)
@@ -232,7 +215,6 @@ void Game::updateDefenders(float deltaTime)
 
 void Game::updateWaveManager(float deltaTime)
 {
-    // Автоматически запускаем следующую волну
     if (!m_waveManager.isWaveActive() && m_waveManager.hasMoreWaves())
     {
         m_waveManager.startNextWave();
@@ -240,7 +222,6 @@ void Game::updateWaveManager(float deltaTime)
     
     m_waveManager.update(deltaTime);
     
-    // Обновляем цель для всех врагов и обновляем их
     for (auto& enemy : *m_waveManager.getEnemies())
     {
         enemy->setTarget(m_base.get());
@@ -250,7 +231,6 @@ void Game::updateWaveManager(float deltaTime)
 
 void Game::checkCollisions()
 {
-    // Коллизии пуль с врагами
     for (auto& defender : m_defenders)
     {
         int resourcesEarned = CollisionManager::checkBulletEnemyCollisions(
@@ -259,11 +239,9 @@ void Game::checkCollisions()
             m_score
         );
         
-        // Начисляем ресурсы за убитых врагов
         m_resources += resourcesEarned;
     }
     
-    // Коллизии врагов с базой
     CollisionManager::checkEnemyBaseCollisions(
         *m_waveManager.getEnemies(),
         *m_base
@@ -272,23 +250,26 @@ void Game::checkCollisions()
 
 void Game::updateUI()
 {
-    // Обновляем текст счета
     std::ostringstream scoreStream;
     scoreStream << "Score: " << m_score;
     m_scoreText->setString(scoreStream.str());
     
-    // Обновляем текст здоровья
     std::ostringstream healthStream;
     healthStream << "Health: " << m_base->getHealth() << "/100";
     m_healthText->setString(healthStream.str());
     
-    // Обновляем текст волны
     std::ostringstream waveStream;
-    waveStream << "Wave: " << (m_waveManager.getCurrentWave() + 1) 
-               << "/" << m_waveManager.getTotalWaves();
+    int currentWave = m_waveManager.getCurrentWave();
+    if (currentWave == 0)
+    {
+        waveStream << "Wave: 0/" << m_waveManager.getTotalWaves() << " (Waiting...)";
+    }
+    else
+    {
+        waveStream << "Wave: " << currentWave << "/" << m_waveManager.getTotalWaves();
+    }
     m_waveText->setString(waveStream.str());
     
-    // Обновляем текст ресурсов
     std::ostringstream resourcesStream;
     std::string defenderTypeName;
     switch (m_selectedDefenderType)
@@ -306,7 +287,7 @@ void Game::updateUI()
         defenderTypeName = "Pentagon";
         break;
     }
-    resourcesStream << "Resources: " << m_resources << " (Defender: " << DEFENDER_COST << ", Type: " << defenderTypeName << ")";
+    resourcesStream << "Resources: " << m_resources << " (Tower: " << DEFENDER_COST << ", Type: " << defenderTypeName << ")";
     m_resourcesText->setString(resourcesStream.str());
 }
 
@@ -331,11 +312,9 @@ void Game::drawVictory()
 
 bool Game::canPlaceDefender(const sf::Vector2f& position) const
 {
-    // Проверяем, достаточно ли ресурсов
     if (m_resources < DEFENDER_COST)
         return false;
     
-    // Проверяем, не слишком ли близко к базе
     sf::Vector2f basePos = m_base->getPosition();
     basePos.x += m_base->getBounds().size.x / 2.f;
     basePos.y += m_base->getBounds().size.y / 2.f;
@@ -345,10 +324,9 @@ bool Game::canPlaceDefender(const sf::Vector2f& position) const
         (position.y - basePos.y) * (position.y - basePos.y)
     );
     
-    if (distance < 80.f) // Минимальное расстояние от базы
+    if (distance < 80.f)
         return false;
     
-    // Проверяем, не пересекается ли с другими защитниками
     for (const auto& defender : m_defenders)
     {
         sf::Vector2f defenderPos = defender->getPosition();
@@ -360,11 +338,10 @@ bool Game::canPlaceDefender(const sf::Vector2f& position) const
             (position.y - defenderPos.y) * (position.y - defenderPos.y)
         );
         
-        if (dist < 40.f) // Минимальное расстояние между защитниками
+        if (dist < 40.f)
             return false;
     }
     
-    // Проверяем границы экрана
     if (position.x < 10.f || position.x > WINDOW_WIDTH - 10.f ||
         position.y < 10.f || position.y > WINDOW_HEIGHT - 10.f)
         return false;
@@ -377,12 +354,10 @@ void Game::placeDefender(const sf::Vector2f& position)
     if (!canPlaceDefender(position))
         return;
     
-    // Создаем защитника выбранного типа
     auto defender = std::make_unique<Defender>(position.x - 10.f, position.y - 10.f, m_selectedDefenderType);
     defender->setEnemies(m_waveManager.getEnemies());
     m_defenders.push_back(std::move(defender));
     
-    // Списываем ресурсы
     m_resources -= DEFENDER_COST;
 }
 
@@ -391,21 +366,20 @@ void Game::drawPlacementPreview()
     sf::RectangleShape preview(sf::Vector2f(20.f, 20.f));
     preview.setPosition(m_mousePosition - sf::Vector2f(10.f, 10.f));
     
-    // Цвет предпросмотра зависит от типа башни
     sf::Color previewColor;
     switch (m_selectedDefenderType)
     {
     case Enemy::Type::Square:
-        previewColor = sf::Color(0, 255, 0, 150); // Зеленый
+        previewColor = sf::Color(0, 255, 0, 150);
         break;
     case Enemy::Type::Triangle:
-        previewColor = sf::Color(255, 200, 0, 150); // Оранжевый
+        previewColor = sf::Color(255, 200, 0, 150);
         break;
     case Enemy::Type::Circle:
-        previewColor = sf::Color(0, 200, 255, 150); // Голубой
+        previewColor = sf::Color(0, 200, 255, 150);
         break;
     case Enemy::Type::Pentagon:
-        previewColor = sf::Color(255, 0, 255, 150); // Пурпурный
+        previewColor = sf::Color(255, 0, 255, 150);
         break;
     }
     
@@ -416,7 +390,7 @@ void Game::drawPlacementPreview()
     }
     else
     {
-        preview.setFillColor(sf::Color(255, 0, 0, 100)); // Красный, полупрозрачный
+        preview.setFillColor(sf::Color(255, 0, 0, 100));
         preview.setOutlineColor(sf::Color::Red);
     }
     preview.setOutlineThickness(2.f);

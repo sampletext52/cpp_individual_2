@@ -7,13 +7,6 @@
 #include <functional>
 #include <chrono>
 
-/**
- * @class WaveManager
- * @brief Управляет волнами врагов
- * 
- * Использует STD контейнеры (vector, map) и функциональные объекты
- * для создания расширяемой системы волн.
- */
 class WaveManager
 {
 public:
@@ -36,7 +29,6 @@ public:
     int getCurrentWave() const;
     int getTotalWaves() const;
     
-    // Расширяемость: возможность добавить кастомную волну
     void addCustomWave(const std::vector<WaveConfig>& config);
 
 private:

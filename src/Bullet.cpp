@@ -7,24 +7,22 @@ Bullet::Bullet(float x, float y, float targetX, float targetY, float speed, Enem
     , m_speed(speed)
     , m_targetType(targetType)
 {
-    // Устанавливаем цвет пули в зависимости от типа цели
     switch (m_targetType)
     {
     case Enemy::Type::Square:
         m_shape.setFillColor(sf::Color::Green);
         break;
     case Enemy::Type::Triangle:
-        m_shape.setFillColor(sf::Color(255, 200, 0)); // Оранжевый
+        m_shape.setFillColor(sf::Color(255, 200, 0));
         break;
     case Enemy::Type::Circle:
-        m_shape.setFillColor(sf::Color(0, 200, 255)); // Голубой
+        m_shape.setFillColor(sf::Color(0, 200, 255));
         break;
     case Enemy::Type::Pentagon:
-        m_shape.setFillColor(sf::Color(255, 0, 255)); // Пурпурный
+        m_shape.setFillColor(sf::Color(255, 0, 255));
         break;
     }
     
-    // Вычисляем направление
     sf::Vector2f direction = m_target - sf::Vector2f(x, y);
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     
@@ -48,7 +46,6 @@ void Bullet::update(float deltaTime)
     sf::Vector2f movement = m_velocity * deltaTime;
     m_shape.move(movement);
     
-    // Проверяем, достигли ли цели
     currentPos = m_shape.getPosition();
     float distance = std::sqrt(
         (m_target.x - currentPos.x) * (m_target.x - currentPos.x) +
@@ -85,4 +82,3 @@ Enemy::Type Bullet::getTargetType() const
 {
     return m_targetType;
 }
-

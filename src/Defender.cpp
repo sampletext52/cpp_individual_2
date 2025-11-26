@@ -9,23 +9,22 @@ Defender::Defender(float x, float y, Enemy::Type targetType)
     , m_targetType(targetType)
     , m_enemies(nullptr)
     , m_fireCooldown(0.f)
-    , m_fireRate(1.5f) // Выстрелов в секунду
+    , m_fireRate(1.5f)
     , m_range(200.f)
 {
-    // Устанавливаем цвет башни в зависимости от типа цели
     switch (m_targetType)
     {
     case Enemy::Type::Square:
         m_shape.setFillColor(sf::Color::Green);
         break;
     case Enemy::Type::Triangle:
-        m_shape.setFillColor(sf::Color(255, 200, 0)); // Оранжевый
+        m_shape.setFillColor(sf::Color(255, 200, 0));
         break;
     case Enemy::Type::Circle:
-        m_shape.setFillColor(sf::Color(0, 200, 255)); // Голубой
+        m_shape.setFillColor(sf::Color(0, 200, 255));
         break;
     case Enemy::Type::Pentagon:
-        m_shape.setFillColor(sf::Color(255, 0, 255)); // Пурпурный
+        m_shape.setFillColor(sf::Color(255, 0, 255));
         break;
     }
     m_shape.setOutlineColor(sf::Color::White);
@@ -47,7 +46,6 @@ void Defender::update(float deltaTime)
             float dist = distanceTo(nearest->getPosition());
             if (dist <= m_range)
             {
-                // Стреляем
                 sf::Vector2f enemyPos = nearest->getPosition();
                 enemyPos.x += nearest->getBounds().size.x / 2.f;
                 enemyPos.y += nearest->getBounds().size.y / 2.f;
@@ -68,13 +66,11 @@ void Defender::update(float deltaTime)
         }
     }
 
-    // Обновляем пули
     for (auto& bullet : m_bullets)
     {
         bullet->update(deltaTime);
     }
 
-    // Удаляем мертвые пули
     m_bullets.erase(
         std::remove_if(m_bullets.begin(), m_bullets.end(),
             [](const std::unique_ptr<Bullet>& b) { return !b->isAlive(); }),
@@ -86,7 +82,6 @@ void Defender::draw(sf::RenderWindow& window) const
 {
     Entity::draw(window);
     
-    // Рисуем пули
     for (const auto& bullet : m_bullets)
     {
         bullet->draw(window);
@@ -134,7 +129,6 @@ Enemy* Defender::findNearestEnemy() const
         if (!enemy->isAlive())
             continue;
         
-        // Проверяем, что враг того же типа, что и цель башни
         if (enemy->getType() != m_targetType)
             continue;
 
@@ -163,4 +157,3 @@ Enemy::Type Defender::getTargetType() const
 {
     return m_targetType;
 }
-

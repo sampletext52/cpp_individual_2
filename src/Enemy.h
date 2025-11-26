@@ -6,22 +6,15 @@
 
 class Base;
 
-/**
- * @class Enemy
- * @brief Представляет врага, который движется к базе
- * 
- * Враги имеют разные типы и скорости движения.
- * Использует паттерн Strategy для различных типов поведения.
- */
 class Enemy : public Entity
 {
 public:
     enum class Type
     {
-        Square,      // Квадраты
-        Triangle,    // Треугольники
-        Circle,      // Круги
-        Pentagon     // Пятиугольники
+        Square,
+        Triangle,
+        Circle,
+        Pentagon
     };
 
     enum class ShapeType
@@ -43,6 +36,11 @@ public:
     int getDamage() const;
     int getReward() const;
     float getSpeed() const;
+    
+    void takeDamage(int damage);
+    int getHealth() const;
+    int getMaxHealth() const;
+    bool isDamaged() const;
 
 private:
     Type m_type;
@@ -52,8 +50,11 @@ private:
     int m_damage;
     int m_reward;
     float m_size;
+    int m_health;
+    int m_maxHealth;
     
     void initializeByType();
     void drawShape(sf::RenderWindow& window) const;
+    void drawHealthBar(sf::RenderWindow& window) const;
 };
 

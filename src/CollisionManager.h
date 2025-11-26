@@ -7,12 +7,6 @@
 #include <memory>
 #include <algorithm>
 
-/**
- * @class CollisionManager
- * @brief Управляет всеми коллизиями в игре
- * 
- * Использует STD алгоритмы для эффективной обработки коллизий.
- */
 class CollisionManager
 {
 public:

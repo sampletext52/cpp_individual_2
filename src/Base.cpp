@@ -12,14 +12,12 @@ Base::Base(float x, float y)
 
 void Base::update(float deltaTime)
 {
-    // База статична, но может обновлять визуальное состояние
     if (m_health <= 0)
     {
         m_shape.setFillColor(sf::Color::Red);
     }
     else
     {
-        // Изменяем цвет в зависимости от здоровья
         float healthRatio = static_cast<float>(m_health) / static_cast<float>(m_maxHealth);
         unsigned char green = static_cast<unsigned char>(255 * healthRatio);
         m_shape.setFillColor(sf::Color(255 - green, green, 255));
@@ -55,4 +53,3 @@ void Base::reset()
     m_health = MAX_HEALTH;
     m_shape.setFillColor(sf::Color::Cyan);
 }
-

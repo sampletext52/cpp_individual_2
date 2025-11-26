@@ -18,16 +18,22 @@ int CollisionManager::checkBulletEnemyCollisions(
             if (!enemy->isAlive())
                 continue;
             
-            // Проверяем, что пуля может поразить этого врага (типы должны совпадать)
             if (bullet->getTargetType() != enemy->getType())
                 continue;
 
             if (checkCollision(bullet->getBounds(), enemy->getBounds()))
             {
                 bullet->setAlive(false);
-                resourcesEarned += enemy->getReward(); // Награда за врага
-                score += enemy->getReward();
-                enemy->setAlive(false);
+                
+                int oldHealth = enemy->getHealth();
+                enemy->takeDamage(bullet->getDamage());
+                
+                if (!enemy->isAlive())
+                {
+                    resourcesEarned += enemy->getReward();
+                    score += enemy->getReward();
+                }
+                
                 break;
             }
         }
@@ -56,4 +62,3 @@ bool CollisionManager::checkCollision(const sf::FloatRect& rect1, const sf::Floa
 {
     return rect1.findIntersection(rect2).has_value();
 }
-

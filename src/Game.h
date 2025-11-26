@@ -11,13 +11,6 @@
 #include "CollisionManager.h"
 #include "InputHandler.h"
 
-/**
- * @class Game
- * @brief Главный класс игры Space Defender
- * 
- * Управляет игровым циклом, всеми системами и состоянием игры.
- * Демонстрирует использование ООП, STD контейнеров и расширяемости.
- */
 class Game
 {
 public:
@@ -68,8 +61,8 @@ private:
     bool m_showPlacementPreview;
     Enemy::Type m_selectedDefenderType;
     
-    static constexpr int DEFENDER_COST = 50;
-    static constexpr int STARTING_RESOURCES = 100;
+    static constexpr int DEFENDER_COST = 40;
+    static constexpr int STARTING_RESOURCES = 150;
     
     static constexpr int WINDOW_WIDTH = 800;
     static constexpr int WINDOW_HEIGHT = 600;

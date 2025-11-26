@@ -3,12 +3,6 @@
 #include "Entity.h"
 #include <SFML/Graphics.hpp>
 
-/**
- * @class Base
- * @brief Представляет базу игрока, которую нужно защищать
- * 
- * База имеет здоровье и может быть уничтожена врагами.
- */
 class Base : public Entity
 {
 public:
