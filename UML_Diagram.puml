@@ -1,0 +1,82 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+
+abstract class Entity {
+    + update(float deltaTime)*
+    + draw(sf::RenderWindow& window)
+    + getPosition() sf::Vector2f
+    + isAlive() bool
+}
+
+class Base {
+    + getHealth() int
+    + takeDamage(int damage)
+    + isDestroyed() bool
+}
+
+class Enemy {
+    + enum Type { Square, Triangle, Circle, Pentagon }
+    + getType() Type
+    + takeDamage(int damage)
+    + getDamage() int
+    + getReward() int
+}
+
+class Bullet {
+    + getDamage() int
+    + getTargetType() Enemy::Type
+    + hasReachedTarget() bool
+}
+
+class Defender {
+    + getTargetType() Enemy::Type
+    + getRange() float
+    + getFireRate() float
+}
+
+class WaveManager {
+    + update(float deltaTime)
+    + startNextWave()
+    + getEnemies() vector<Enemy>*
+    + getCurrentWave() int
+}
+
+class WaveConfig {
+    + int enemyCount
+    + float spawnInterval
+    + Enemy::Type enemyType
+}
+
+class CollisionManager {
+    + {static} checkBulletEnemyCollisions(...)
+    + {static} checkEnemyBaseCollisions(...)
+}
+
+class Game {
+    + run()
+    - update(float deltaTime)
+    - render()
+}
+
+class InputHandler {
+    + {static} isKeyPressed(...)
+}
+
+Entity <|-- Base
+Entity <|-- Enemy
+Entity <|-- Bullet
+Entity <|-- Defender
+
+Enemy --> Base : targets
+Defender --> Bullet : creates
+Defender ..> Enemy : finds targets
+WaveManager --> Enemy : manages
+WaveManager --> WaveConfig : uses
+Game --> Base
+Game --> Defender
+Game --> WaveManager
+Game ..> CollisionManager
+Game ..> InputHandler
+
+@enduml
